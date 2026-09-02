@@ -1,95 +1,31 @@
-# Utility/helper functions
 """
-Utility and helper functions.
+Utility functions.
 """
 
-
-def validate_user_input(
-    user_input
-):
-    """
-    Check whether the user entered
-    a valid recommendation query.
-    """
-
-    if user_input is None:
-
-        return False
-
-    user_input = str(
-        user_input
-    ).strip()
-
-    if len(user_input) == 0:
-
-        return False
-
-    return True
+import math
 
 
-def create_reason(
-    matched_skills,
-    theme_matches
-):
-    """
-    Create a human-readable explanation
-    for why a problem was recommended.
-    """
-
-    reasons = []
-
-    if matched_skills:
-
-        skill_text = (
-            "Matching Skills: "
-            + ", ".join(
-                matched_skills
-            )
-        )
-
-        reasons.append(
-            skill_text
-        )
+def validate_user_input(user_input):
+    return user_input is not None and bool(str(user_input).strip())
 
 
-    if theme_matches:
-
-        theme_text = (
-            "Matching Theme/Domain: "
-            + ", ".join(
-                theme_matches
-            )
-        )
-
-        reasons.append(
-            theme_text
-        )
-
-
-    if not reasons:
-
-        reasons.append(
-            "Recommended based on overall "
-            "text similarity."
-        )
-
-
-    return " | ".join(
-        reasons
-    )
-
-
-def safe_text(
-    value
-):
-    """
-    Safely convert values into text.
-    """
-
+def safe_text(value):
     if value is None:
-
         return ""
+    try:
+        if math.isnan(value):
+            return ""
+    except (TypeError, ValueError):
+        pass
+    return str(value).strip()
 
-    return str(
-        value
-    ).strip()
+
+def create_reason(matched_skills, theme_matches):
+    reasons = []
+    if matched_skills:
+        reasons.append("Matching Skills: " + ", ".join(matched_skills))
+    if theme_matches:
+        reasons.append(
+            "Matching Theme/Domain: " + ", ".join(theme_matches)
+        )
+    return " | ".join(reasons) if reasons else "Recommended based on measurable text similarity."
