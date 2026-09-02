@@ -6,6 +6,7 @@ from pathlib import Path
 
 from flask import Flask, abort, render_template, request, session
 from werkzeug.exceptions import RequestEntityTooLarge
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -27,8 +28,10 @@ from app.config import (
 from src.recommender import SIHRecommender
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+
 app.config.update(
-    SECRET_KEY=SECRET_KEY or secrets.token_urlsafe(32),
+    SECRET_KEY=SECRET_KEY,
     MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH,
     SESSION_COOKIE_HTTPONLY=SESSION_COOKIE_HTTPONLY,
     SESSION_COOKIE_SAMESITE=SESSION_COOKIE_SAMESITE,
