@@ -1,355 +1,51 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        SIH AI Problem Recommendation System
-    </title>
-
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="AI-powered Smart India Hackathon problem recommendation system.">
+<title>SIH AI Recommender</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
-
 <body>
-
-
-<div class="container">
-
-
-    <!-- HEADER -->
-
-    <header class="hero">
-
-        <h1>
-            SIH AI Problem Recommendation System
-        </h1>
-
-
-        <p>
-            Find Smart India Hackathon problems
-            based on your skills and interests.
-        </p>
-
-    </header>
-
-
-
-    <!-- INPUT FORM -->
-
-    <section class="search-section">
-
-
-        <form
-            method="POST"
-            id="recommendationForm"
-        >
-
-
-            <label
-                for="user_input"
-            >
-                Enter Your Skills & Interests
-            </label>
-
-
-            <textarea
-
-                id="user_input"
-
-                name="user_input"
-
-                placeholder="Example: Python Machine Learning Computer Vision Agriculture"
-
-                required
-
-            >{{ user_input }}</textarea>
-
-
-
-            <button
-                type="submit"
-                id="submitButton"
-            >
-
-                Find Best SIH Problems
-
-            </button>
-
-
-        </form>
-
-
-    </section>
-
-
-
-    <!-- ERROR MESSAGE -->
-
-    {% if error %}
-
-    <div class="error">
-
-        {{ error }}
-
-    </div>
-
-    {% endif %}
-
-
-
-    <!-- RESULTS -->
-
-    {% if results %}
-
-
-    <section class="results-section">
-
-
-        <h2>
-            Top {{ results|length }}
-            Recommended SIH Problems
-        </h2>
-
-
-        <p class="query">
-
-            Your Input:
-
-            <strong>
-                {{ user_input }}
-            </strong>
-
-        </p>
-
-
-
-        {% for result in results %}
-
-
-        <article class="problem-card">
-
-
-            <div class="rank">
-
-                Rank #{{ result.rank }}
-
-            </div>
-
-
-
-            <h3>
-
-                {{ result.title }}
-
-            </h3>
-
-
-
-            <div class="problem-info">
-
-
-                <p>
-
-                    <strong>
-                        PS Number:
-                    </strong>
-
-                    {{ result.ps_number }}
-
-                </p>
-
-
-
-                <p>
-
-                    <strong>
-                        Theme:
-                    </strong>
-
-                    {{ result.theme }}
-
-                </p>
-
-
-
-                <p>
-
-                    <strong>
-                        Category:
-                    </strong>
-
-                    {{ result.category }}
-
-                </p>
-
-
-            </div>
-
-
-
-            {% if result.details %}
-
-            <div class="details">
-
-                <h4>
-                    Problem Description
-                </h4>
-
-
-                <p>
-
-                    {{ result.details }}
-
-                </p>
-
-            </div>
-
-            {% endif %}
-
-
-
-            <div class="scores">
-
-
-                <div>
-
-                    <span>
-                        TF-IDF Similarity
-                    </span>
-
-                    <strong>
-
-                        {{ result.tfidf_similarity }}%
-
-                    </strong>
-
-                </div>
-
-
-
-                <div>
-
-                    <span>
-                        Hybrid AI Score
-                    </span>
-
-                    <strong>
-
-                        {{ result.final_score }}
-
-                    </strong>
-
-                </div>
-
-
-            </div>
-
-
-
-            {% if result.matched_skills %}
-
-            <div class="skills">
-
-                <strong>
-                    Matching Skills:
-                </strong>
-
-
-                {% for skill in result.matched_skills %}
-
-                <span class="skill-tag">
-
-                    {{ skill }}
-
-                </span>
-
-                {% endfor %}
-
-
-            </div>
-
-            {% endif %}
-
-
-
-            {% if result.theme_matches %}
-
-            <div class="theme-matches">
-
-                <strong>
-                    Matching Domains:
-                </strong>
-
-
-                {% for theme in result.theme_matches %}
-
-                <span class="theme-tag">
-
-                    {{ theme }}
-
-                </span>
-
-                {% endfor %}
-
-
-            </div>
-
-            {% endif %}
-
-
-
-            <div class="why">
-
-                <strong>
-                    Why Recommended?
-                </strong>
-
-
-                <p>
-
-                    {{ result.why_recommended }}
-
-                </p>
-
-            </div>
-
-
-        </article>
-
-
-        {% endfor %}
-
-
-    </section>
-
-
-    {% endif %}
-
-
-</div>
-
-
-
-<script
-    src="{{ url_for('static', filename='js/script.js') }}"
->
-</script>
-
-
+<main class="container">
+<header class="hero">
+<span class="eyebrow">AI × Smart India Hackathon</span>
+<h1>Find the <span class="gradient-text">right problem</span><br>for your skills.</h1>
+<p>Enter your technologies, domains, and interests. The recommendation engine combines TF-IDF similarity, skill coverage, theme matching, and validation confidence.</p>
+<div class="stats"><div class="stat"><strong>AI Matching</strong><span>TF-IDF + Hybrid Scoring</span></div><div class="stat"><strong>Top 10</strong><span>Relevant SIH recommendations</span></div><div class="stat"><strong>Confidence Gate</strong><span>No forced irrelevant results</span></div></div>
+</header>
+<section class="search-section" aria-label="Problem recommendation search">
+<form method="POST" id="recommendationForm" novalidate>
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+<label class="input-label" for="user_input">What are your skills and interests?</label>
+<div class="input-wrap"><textarea id="user_input" name="user_input" maxlength="500" placeholder="Example: Python, Machine Learning, Computer Vision, Agriculture" required>{{ user_input }}</textarea><span class="char-count" id="charCount">0/500</span></div>
+<p class="input-help">Be specific. Add technologies and domains for stronger recommendations.</p>
+<div class="example-chips" aria-label="Example searches"><button type="button" class="chip" data-query="Python Machine Learning Agriculture">AI + Agriculture</button><button type="button" class="chip" data-query="Computer Vision Robotics Python">Computer Vision</button><button type="button" class="chip" data-query="Artificial Intelligence Data Science Healthcare">AI + Healthcare</button></div>
+<button type="submit" id="submitButton">Find My Best SIH Problems →</button>
+</form>
+</section>
+{% if error %}<div class="message error" role="alert">{{ error }}</div>{% endif %}
+{% if info %}<div class="message info" role="status">{{ info }}</div>{% endif %}
+{% if results %}
+<section class="results-section">
+<div class="results-heading"><div><h2>Your Best Matches</h2><p class="query">Based on: <strong>{{ user_input }}</strong></p></div><span class="eyebrow">{{ results|length }} recommendations</span></div>
+{% for result in results %}
+<article class="problem-card">
+<div class="rank">#{{ result.rank }} Recommendation</div>
+<h3>{{ result.title }}</h3>
+<div class="problem-info"><div class="meta"><strong>PS Number</strong>{{ result.ps_number }}</div><div class="meta"><strong>Theme</strong>{{ result.theme }}</div><div class="meta"><strong>Category</strong>{{ result.category }}</div></div>
+{% if result.details %}<div class="details"><h4>Problem Description</h4><p>{{ result.details }}</p></div>{% endif %}
+<div class="scores"><div class="score-box"><span>TF-IDF Similarity</span><strong>{{ result.tfidf_similarity }}%</strong></div><div class="score-box"><span>Hybrid AI Score</span><strong>{{ result.final_score }}</strong></div></div>
+{% if result.matched_skills %}<div><span class="section-label">Matching Skills</span>{% for skill in result.matched_skills %}<span class="skill-tag">{{ skill }}</span>{% endfor %}</div>{% endif %}
+{% if result.theme_matches %}<div><span class="section-label">Matching Domains</span>{% for theme in result.theme_matches %}<span class="theme-tag">{{ theme }}</span>{% endfor %}</div>{% endif %}
+<div class="why"><strong>Why Recommended?</strong><p>{{ result.why_recommended }}</p></div>
+</article>
+{% endfor %}
+</section>
+{% endif %}
+<footer class="footer">SIH AI Problem Recommendation System · Built with Python, Flask and Machine Learning</footer>
+</main>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
-
 </html>

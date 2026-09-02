@@ -2,192 +2,53 @@
 Hybrid scoring system.
 """
 
-
-from .skill_matching import (
-    get_user_skills,
-    get_matched_skills
-)
-
+from .skill_matching import get_matched_skills, get_skill_coverage
 
 DOMAINS = [
-
-    "agriculture",
-
-    "health",
-
-    "education",
-
-    "robotics",
-
-    "cybersecurity",
-
-    "space",
-
-    "environment",
-
-    "smart automation",
-
-    "transportation"
+    "agriculture", "health", "education", "robotics", "cybersecurity",
+    "space", "environment", "smart automation", "transportation",
 ]
 
-
-def get_theme_match(
-    user_input,
-    problem
-):
-    """
-    Check whether user interests match
-    the SIH problem theme.
-    """
-
-    user_text = str(
-        user_input
-    ).lower()
-
-    theme = str(
-        problem.get(
-            "Theme",
-            ""
-        )
-    ).lower()
-
-    matched_domains = []
-
-    for domain in DOMAINS:
-
-        if (
-            domain in user_text
-            and
-            domain in theme
-        ):
-
-            matched_domains.append(
-                domain
-            )
-
-    return matched_domains
+GENERIC_TITLES = {"student innovation", "innovation"}
 
 
-def calculate_final_score(
-    user_input,
-    problem,
-    similarity_score
-):
-    """
-    Calculate final hybrid recommendation score.
-
-    Formula:
-
-    TF-IDF Similarity
-    +
-    Skill Match Bonus
-    +
-    Multi-Skill Coverage Bonus
-    +
-    Theme Match Bonus
-    -
-    Generic Title Penalty
-    """
-
-    problem_title = str(
-        problem.get(
-            "Problem Statement Title",
-            ""
-        )
-    ).lower()
-
-    problem_theme = str(
-        problem.get(
-            "Theme",
-            ""
-        )
-    ).lower()
-
-    problem_text = str(
-        problem.get(
-            "weighted_text",
-            ""
-        )
-    ).lower()
-
-    # Base TF-IDF score
-    final_score = (
-        float(similarity_score)
-        * 100
-    )
-
-    # Detect user skills
-    user_skills = get_user_skills(
-        user_input
-    )
-
-    # Find matching skills
-    matched_skills = get_matched_skills(
-        user_input,
-        problem_text
-    )
-
-    # Add skill bonuses
-    for skill in matched_skills:
-
-        # Highest importance:
-        # skill appears in title
-        if skill in problem_title:
-
-            final_score += 12
-
-        # Medium importance:
-        # skill appears in theme
-        elif skill in problem_theme:
-
-            final_score += 8
-
-        # Normal importance:
-        # skill appears in description
-        else:
-
-            final_score += 4
+def _text(value):
+    return "" if value is None else str(value).lower()
 
 
-    # Multi-skill coverage bonus
-    if len(user_skills) > 0:
-
-        coverage = (
-            len(matched_skills)
-            / len(user_skills)
-        )
-
-        final_score += (
-            coverage * 20
-        )
-
-
-    # Theme/domain bonus
-    theme_matches = get_theme_match(
-        user_input,
-        problem
-    )
-
-    final_score += (
-        len(theme_matches)
-        * 10
-    )
-
-
-    # Generic title penalty
-    generic_titles = [
-
-        "student innovation",
-
-        "innovation"
+def get_theme_match(user_input, problem):
+    user_text = _text(user_input)
+    searchable = " ".join([
+        _text(problem.get("Theme", "")),
+        _text(problem.get("Details", "")),
+        _text(problem.get("weighted_text", "")),
+    ])
+    return [
+        domain for domain in DOMAINS
+        if domain in user_text and domain in searchable
     ]
 
-    if (
-        problem_title.strip()
-        in generic_titles
-    ):
 
-        final_score -= 10
+def calculate_final_score(user_input, problem, similarity_score):
+    title = _text(problem.get("Problem Statement Title", ""))
+    theme = _text(problem.get("Theme", ""))
+    problem_text = _text(problem.get("weighted_text", ""))
 
+    final_score = max(0.0, float(similarity_score)) * 100.0
+    matched_skills = get_matched_skills(user_input, problem_text)
 
-    return final_score
+    for skill in matched_skills:
+        if skill in title:
+            final_score += 8
+        elif skill in theme:
+            final_score += 5
+        else:
+            final_score += 3
+
+    final_score += get_skill_coverage(user_input, problem_text) * 12
+    final_score += len(get_theme_match(user_input, problem)) * 6
+
+    if title.strip() in GENERIC_TITLES:
+        final_score -= 8
+
+    return max(0.0, final_score)
