@@ -1,355 +1,93 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        SIH AI Problem Recommendation System
-    </title>
-
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIH AI Problem Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
-
 <body>
-
-
 <div class="container">
-
-
-    <!-- HEADER -->
-
     <header class="hero">
-
-        <h1>
-            SIH AI Problem Recommendation System
-        </h1>
-
-
-        <p>
-            Find Smart India Hackathon problems
-            based on your skills and interests.
-        </p>
-
+        <h1>SIH AI Problem Recommendation System</h1>
+        <p>Find Smart India Hackathon problems based on your skills and interests.</p>
     </header>
 
-
-
-    <!-- INPUT FORM -->
-
     <section class="search-section">
-
-
-        <form
-            method="POST"
-            id="recommendationForm"
-        >
-
-
-            <label
-                for="user_input"
-            >
-                Enter Your Skills & Interests
-            </label>
-
-
-            <textarea
-
-                id="user_input"
-
-                name="user_input"
-
+        <form method="POST" id="recommendationForm" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label for="user_input">Enter Your Skills &amp; Interests</label>
+            <textarea id="user_input" name="user_input" maxlength="500"
                 placeholder="Example: Python Machine Learning Computer Vision Agriculture"
-
-                required
-
-            >{{ user_input }}</textarea>
-
-
-
-            <button
-                type="submit"
-                id="submitButton"
-            >
-
-                Find Best SIH Problems
-
-            </button>
-
-
+                required>{{ user_input }}</textarea>
+            <p class="input-help">Maximum 500 characters.</p>
+            <button type="submit" id="submitButton">Find Best SIH Problems</button>
         </form>
-
-
     </section>
-
-
-
-    <!-- ERROR MESSAGE -->
 
     {% if error %}
-
-    <div class="error">
-
-        {{ error }}
-
-    </div>
-
+    <div class="error" role="alert">{{ error }}</div>
     {% endif %}
 
-
-
-    <!-- RESULTS -->
+    {% if info %}
+    <div class="info" role="status">{{ info }}</div>
+    {% endif %}
 
     {% if results %}
-
-
     <section class="results-section">
-
-
-        <h2>
-            Top {{ results|length }}
-            Recommended SIH Problems
-        </h2>
-
-
-        <p class="query">
-
-            Your Input:
-
-            <strong>
-                {{ user_input }}
-            </strong>
-
-        </p>
-
-
+        <h2>Top {{ results|length }} Recommended SIH Problems</h2>
+        <p class="query">Your Input: <strong>{{ user_input }}</strong></p>
 
         {% for result in results %}
-
-
         <article class="problem-card">
-
-
-            <div class="rank">
-
-                Rank #{{ result.rank }}
-
-            </div>
-
-
-
-            <h3>
-
-                {{ result.title }}
-
-            </h3>
-
-
+            <div class="rank">Rank #{{ result.rank }}</div>
+            <h3>{{ result.title }}</h3>
 
             <div class="problem-info">
-
-
-                <p>
-
-                    <strong>
-                        PS Number:
-                    </strong>
-
-                    {{ result.ps_number }}
-
-                </p>
-
-
-
-                <p>
-
-                    <strong>
-                        Theme:
-                    </strong>
-
-                    {{ result.theme }}
-
-                </p>
-
-
-
-                <p>
-
-                    <strong>
-                        Category:
-                    </strong>
-
-                    {{ result.category }}
-
-                </p>
-
-
+                <p><strong>PS Number:</strong> {{ result.ps_number }}</p>
+                <p><strong>Theme:</strong> {{ result.theme }}</p>
+                <p><strong>Category:</strong> {{ result.category }}</p>
             </div>
-
-
 
             {% if result.details %}
-
             <div class="details">
-
-                <h4>
-                    Problem Description
-                </h4>
-
-
-                <p>
-
-                    {{ result.details }}
-
-                </p>
-
+                <h4>Problem Description</h4>
+                <p>{{ result.details }}</p>
             </div>
-
             {% endif %}
-
-
 
             <div class="scores">
-
-
-                <div>
-
-                    <span>
-                        TF-IDF Similarity
-                    </span>
-
-                    <strong>
-
-                        {{ result.tfidf_similarity }}%
-
-                    </strong>
-
-                </div>
-
-
-
-                <div>
-
-                    <span>
-                        Hybrid AI Score
-                    </span>
-
-                    <strong>
-
-                        {{ result.final_score }}
-
-                    </strong>
-
-                </div>
-
-
+                <div><span>TF-IDF Similarity</span><strong>{{ result.tfidf_similarity }}%</strong></div>
+                <div><span>Hybrid AI Score</span><strong>{{ result.final_score }}</strong></div>
             </div>
-
-
 
             {% if result.matched_skills %}
-
             <div class="skills">
-
-                <strong>
-                    Matching Skills:
-                </strong>
-
-
+                <strong>Matching Skills:</strong>
                 {% for skill in result.matched_skills %}
-
-                <span class="skill-tag">
-
-                    {{ skill }}
-
-                </span>
-
+                <span class="skill-tag">{{ skill }}</span>
                 {% endfor %}
-
-
             </div>
-
             {% endif %}
-
-
 
             {% if result.theme_matches %}
-
             <div class="theme-matches">
-
-                <strong>
-                    Matching Domains:
-                </strong>
-
-
+                <strong>Matching Domains:</strong>
                 {% for theme in result.theme_matches %}
-
-                <span class="theme-tag">
-
-                    {{ theme }}
-
-                </span>
-
+                <span class="theme-tag">{{ theme }}</span>
                 {% endfor %}
-
-
             </div>
-
             {% endif %}
 
-
-
             <div class="why">
-
-                <strong>
-                    Why Recommended?
-                </strong>
-
-
-                <p>
-
-                    {{ result.why_recommended }}
-
-                </p>
-
+                <strong>Why Recommended?</strong>
+                <p>{{ result.why_recommended }}</p>
             </div>
-
-
         </article>
-
-
         {% endfor %}
-
-
     </section>
-
-
     {% endif %}
-
-
 </div>
-
-
-
-<script
-    src="{{ url_for('static', filename='js/script.js') }}"
->
-</script>
-
-
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
-
 </html>
