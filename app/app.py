@@ -146,16 +146,6 @@ def index():
     )
 
 
-@app.errorhandler(400)
-def bad_request(_error):
-    return render_template(
-        "index.html",
-        results=[],
-        user_input="",
-        error="Invalid or expired request. Please refresh the page and try again.",
-    ), 400
-
-
 @app.errorhandler(429)
 def too_many_requests(_error):
     return render_template(
