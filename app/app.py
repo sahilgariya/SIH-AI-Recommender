@@ -5,7 +5,7 @@ from flask import (
     request
 )
 
-from config import (
+from app.config import (
     VECTOR_PATH,
     MATRIX_PATH,
     DATASET_PATH,
