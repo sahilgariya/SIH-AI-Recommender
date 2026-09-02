@@ -17,7 +17,6 @@
 </header>
 <section class="search-section" aria-label="Problem recommendation search">
 <form method="POST" id="recommendationForm" novalidate>
-<input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 <label class="input-label" for="user_input">What are your skills and interests?</label>
 <div class="input-wrap"><textarea id="user_input" name="user_input" maxlength="500" placeholder="Example: Python, Machine Learning, Computer Vision, Agriculture" required>{{ user_input }}</textarea><span class="char-count" id="charCount">0/500</span></div>
 <p class="input-help">Be specific. Add technologies and domains for stronger recommendations.</p>
