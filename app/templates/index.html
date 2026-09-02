@@ -25,6 +25,15 @@
 <button type="submit" id="submitButton">Find My Best SIH Problems →</button>
 </form>
 </section>
+<section class="help-section" aria-labelledby="help-title">
+<h2 id="help-title">How to Get Better Recommendations</h2>
+<div class="help-grid">
+<div class="help-card"><span class="help-number">1</span><h3>Enter 3–6 interests</h3><p>Use a combination of skills, technologies, and problem domains. More relevant information usually produces a stronger match.</p></div>
+<div class="help-card"><span class="help-number">2</span><h3>Mix different types</h3><p>Example: <strong>Python + Machine Learning + Computer Vision + Agriculture</strong>.</p></div>
+<div class="help-card"><span class="help-number">3</span><h3>Be specific</h3><p>Good: <strong>Python, ML, Computer Vision, Robotics</strong>. Avoid unrelated words or only one vague interest.</p></div>
+</div>
+<div class="help-example"><strong>Recommended format:</strong> 3–6 relevant interests &nbsp;•&nbsp; <strong>Maximum:</strong> 500 characters</div>
+</section>
 {% if error %}<div class="message error" role="alert">{{ error }}</div>{% endif %}
 {% if info %}<div class="message info" role="status">{{ info }}</div>{% endif %}
 {% if results %}
