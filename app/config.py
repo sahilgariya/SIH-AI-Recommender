@@ -11,7 +11,17 @@ DEBUG = os.getenv("FLASK_DEBUG", "0").lower() in {"1", "true", "yes"}
 HOST = os.getenv("HOST", "127.0.0.1")
 PORT = int(os.getenv("PORT", "5000"))
 
+# SECRET_KEY must be stable across requests. A new random key per request
+# invalidates Flask sessions and therefore CSRF tokens on serverless deployments.
 SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = "development-only-change-this-secret-key"
+    else:
+        raise RuntimeError(
+            "SECRET_KEY is required in production. Set it in your deployment environment."
+        )
+
 MAX_CONTENT_LENGTH = 16 * 1024
 
 SESSION_COOKIE_HTTPONLY = True
