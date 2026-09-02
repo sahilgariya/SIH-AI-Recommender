@@ -1,10 +1,9 @@
-import secrets
 import sys
 import time
 from collections import defaultdict, deque
 from pathlib import Path
 
-from flask import Flask, abort, render_template, request, session
+from flask import Flask, abort, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -66,13 +65,6 @@ def rate_limit_ok():
     return True
 
 
-def csrf_token():
-    token = session.get("csrf_token")
-    if not token:
-        token = secrets.token_urlsafe(32)
-        session["csrf_token"] = token
-    return token
-
 
 @app.after_request
 def add_security_headers(response):
@@ -105,7 +97,6 @@ def handle_large_request(_error):
         results=[],
         user_input="",
         error="Input is too large. Please enter a shorter query.",
-        csrf_token=csrf_token(),
     ), 413
 
 
@@ -120,14 +111,6 @@ def index():
         if not rate_limit_ok():
             abort(429)
 
-        submitted_token = request.form.get("csrf_token", "")
-        expected_token = session.get("csrf_token", "")
-
-        if not submitted_token or not expected_token:
-            abort(400)
-
-        if not secrets.compare_digest(submitted_token, expected_token):
-            abort(400)
 
         user_input = request.form.get("user_input", "").strip()
 
@@ -160,7 +143,6 @@ def index():
         user_input=user_input,
         error=error,
         info=info,
-        csrf_token=csrf_token(),
     )
 
 
@@ -171,7 +153,6 @@ def bad_request(_error):
         results=[],
         user_input="",
         error="Invalid or expired request. Please refresh the page and try again.",
-        csrf_token=csrf_token(),
     ), 400
 
 
@@ -182,7 +163,6 @@ def too_many_requests(_error):
         results=[],
         user_input="",
         error="Too many requests. Please wait a moment and try again.",
-        csrf_token=csrf_token(),
     ), 429
 
 
